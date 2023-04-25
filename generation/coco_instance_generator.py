@@ -24,9 +24,9 @@ class COCOInstanceGenerator(InstanceGenerator):
             self.base_path, "annotations", "instances_train.json")
         self.a_train_annotations_path = os.path.join(
             self.base_path, "annotations", "instances_train_augmented.json")
-        self.images_path = os.path.join(self.base_path, "images")
+        self.images_path = os.path.join(self.base_path, "train/images")
         self.images_a_train_path = os.path.join(
-            self.base_path, "images", "train_augmented")
+            self.base_path, "train_augmented", "images")
 
         shutil.copyfile(self.train_annotations_path,
                         self.a_train_annotations_path)
@@ -35,7 +35,7 @@ class COCOInstanceGenerator(InstanceGenerator):
             shutil.rmtree(self.images_a_train_path,
                           onerror=ignore_extended_attributes)
 
-        shutil.copytree(os.path.join(self.images_path, "train"),
+        shutil.copytree(self.images_path,
                         self.images_a_train_path,
                         ignore=shutil.ignore_patterns('.*'))
 

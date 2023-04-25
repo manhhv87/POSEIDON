@@ -19,10 +19,10 @@ class COCOInstanceExtractor(InstanceExtractor):
 
         #  Get path from the images and the annotation files
         self.train_annotations_path = os.path.join(
-            self.base_path, "annotations", "instances_train_augmented.json")
+            self.base_path, "annotations", "instances_train.json")
         self.val_annotations_path = os.path.join(
             self.base_path, "annotations", "instances_val.json")
-        self.images_path = os.path.join(self.base_path, "images")
+        self.images_path = os.path.join(self.base_path, "train/images")
 
         # Read annotations as a dictionary
         with open(self.train_annotations_path) as f:
@@ -40,10 +40,13 @@ class COCOInstanceExtractor(InstanceExtractor):
         #  Instances on the Training Set
         print("Instances Training Set")
         print("______________________")
+
         # Load annotations into a dataframe
         df = pd.DataFrame(self.train_annotations['annotations'])
+
         #  Obtain pd.Series with the count of the different rows
         df_counts = df['category_id'].value_counts()
+
         #  Print
         for category in self.train_annotations['categories']:
             print(category['name'], ": ", sep="", end="")
@@ -57,6 +60,7 @@ class COCOInstanceExtractor(InstanceExtractor):
         print(width_counts)
 
         print("")
+
         #  Instances on the Validation Set
         print("Instances Validation Set")
         print("________________________")
@@ -73,6 +77,7 @@ class COCOInstanceExtractor(InstanceExtractor):
 
     def extract_instance_image(self, img, bbox, output_path, angle_camera, angle_divisions=8):
         output_path = os.path.split(output_path)
+
         # Create output directory
         if not os.path.exists(os.path.join(output_path[0], str(bbox['category_id']),)):
             os.mkdir(os.path.join(output_path[0], str(bbox['category_id']),))
@@ -82,6 +87,7 @@ class COCOInstanceExtractor(InstanceExtractor):
             if not os.path.exists(os.path.join(output_path[0], str(bbox['category_id']), str(angle_camera_bin))):
                 os.mkdir(os.path.join(output_path[0], str(
                     bbox['category_id']), str(angle_camera_bin)))
+
             #  Save instance on the path 'base_path/outputs/category_id/instance_id.png'
             output_path = os.path.join(output_path[0], str(
                 bbox['category_id']), str(angle_camera_bin), output_path[1])
@@ -89,7 +95,9 @@ class COCOInstanceExtractor(InstanceExtractor):
             #  Save instance on the path 'base_path/outputs/category_id/instance_id.png'
             output_path = os.path.join(output_path[0], str(
                 bbox['category_id']), output_path[1])
+
         output_path = output_path + "_" + str(bbox['id']) + ".png"
+
         #  Extract bounding box
         bbox = bbox['bbox']
         x, y, w, h = bbox
@@ -110,8 +118,7 @@ class COCOInstanceExtractor(InstanceExtractor):
         if img_row["meta"] is not None and "gimbal_heading(degrees)" in img_row["meta"]:
             angle_camera = img_row["meta"]["gimbal_heading(degrees)"]
             bboxs = annotations[annotations['image_id'] == img_row['id']]
-            img_path = os.path.join(
-                self.images_path, 'train', img_row['file_name'])
+            img_path = os.path.join(self.images_path, img_row['file_name'])
             img = Image.open(img_path)
             img = np.array(img)
             bboxs.apply(lambda x: self.extract_instance_image(
@@ -124,13 +131,16 @@ class COCOInstanceExtractor(InstanceExtractor):
         # Create output directory
         if not os.path.exists(output_path):
             os.mkdir(output_path)
-            print("Output directory creted: ", output_path)
+            print("Output directory created: ", output_path)
+
         #  Get annotations and images information
         annotations = pd.DataFrame(self.train_annotations['annotations'])
         images = pd.DataFrame(self.train_annotations['images'])
+
         #  Fancier
         print("Extracting Instances:")
         tqdm.pandas()
+
         # Extraction
         images.progress_apply(lambda x: self.extract_instances_image(
             annotations, x, output_path), axis=1)
@@ -149,6 +159,7 @@ class COCOInstanceExtractor(InstanceExtractor):
             lambda x: self.box_collider(bg_window, x), axis=1).any()
         img_path = os.path.join(
             self.images_path, 'train', img_row['file_name'])
+
         if not window_has_collision:
             img = Image.open(img_path)
             img = np.array(img)
@@ -164,6 +175,7 @@ class COCOInstanceExtractor(InstanceExtractor):
         bboxs = annotations[annotations['image_id'] == img_row['id']]['bbox']
         w = img_row['width']
         h = img_row['height']
+
         # Creation of all the posible windows in an image
         x = np.arange(h-background_size[1], step=stride[1])
         y = np.arange(w-background_size[0], step=stride[0])
@@ -174,6 +186,7 @@ class COCOInstanceExtractor(InstanceExtractor):
         windows[:, 3] = background_size[1]
         windows = pd.DataFrame(
             windows, columns=['x', 'y', 'w', 'h']).astype('int')
+
         #  Check correct windows
         tqdm.pandas()
         windows.progress_apply(lambda x: self.check_background_collider(
@@ -185,12 +198,15 @@ class COCOInstanceExtractor(InstanceExtractor):
         if not os.path.exists(output_path):
             os.mkdir(output_path)
             print("Output directory creted: ", output_path)
+
         #  Get annotations and images information
         annotations = pd.DataFrame(self.train_annotations['annotations'])
         images = pd.DataFrame(self.train_annotations['images'])
+
         #  Fancier
         print("Extracting Background:")
         tqdm.pandas()
+
         # Extraction
         images.progress_apply(lambda x: self.extract_background_image(
             output_path, annotations, x, background_size, stride), axis=1)
@@ -208,18 +224,22 @@ class COCOInstanceExtractor(InstanceExtractor):
         #  Get annotations and images information
         annotations = pd.DataFrame(self.train_annotations['annotations'])
         images = pd.DataFrame(self.train_annotations['images'])
+
         # If no Image ID is specified, a random image will be selected
         if img_id is None:
             img_id = images.iloc[np.random.randint(0, images.shape[0])]['id']
+
         # Get Image
         img_row = images[images['id'] == img_id]
         img_path = os.path.join(self.images_path, img_set,
                                 img_row['file_name'].iloc[0])
         img = Image.open(img_path)
+
         #  Get Instances on the image
         bboxs = annotations[annotations['image_id'] == img_id]
         print("Instances on the Image")
         print(bboxs)
+
         #  Plot Bounding Boxes on the Instances
         fig, ax = plt.subplots()
         cmap = plt.cm.get_cmap(cmap)
