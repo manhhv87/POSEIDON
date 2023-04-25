@@ -11,7 +11,7 @@ class COCONormalization:
 
     def __init__(self):
         # self.base_path = os.getenv('POSEIDON_DATASET_PATH')
-        self.base_path = '/content/yolo7_SeaDronesSee/data/'
+        self.base_path = '/content/SeaDronesSee/data/'
         if self.base_path is None:
             raise EnvironmentError(
                 "Environment variable 'POSEIDON_DATASET_PATH' not found")
