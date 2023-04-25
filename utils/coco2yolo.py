@@ -6,22 +6,24 @@ from tqdm import tqdm
 from utils.auxiliar import ignore_extended_attributes
 
 
-
-
 class COCO2YOLO:
 
     def __init__(self, augmented=False):
-        self.augmented=augmented
+        self.augmented = augmented
         self.base_path = os.getenv('POSEIDON_DATASET_PATH')
         if self.base_path is None:
-            raise EnvironmentError("Environment variable 'POSEIDON_DATASET_PATH' not found")
+            raise EnvironmentError(
+                "Environment variable 'POSEIDON_DATASET_PATH' not found")
 
-        # Get path from the images and the annotation files
+        #  Get path from the images and the annotation files
         if augmented:
-            self.train_annotations_path = os.path.join(self.base_path, "annotations", "instances_train_augmented.json")
+            self.train_annotations_path = os.path.join(
+                self.base_path, "annotations", "instances_train_augmented.json")
         else:
-            self.train_annotations_path = os.path.join(self.base_path, "annotations", "instances_train.json")
-        self.val_annotations_path = os.path.join(self.base_path, "annotations", "instances_val.json")
+            self.train_annotations_path = os.path.join(
+                self.base_path, "annotations", "instances_train.json")
+        self.val_annotations_path = os.path.join(
+            self.base_path, "annotations", "instances_val.json")
 
         self.images_path = os.path.join(self.base_path, "images")
 
@@ -32,42 +34,42 @@ class COCO2YOLO:
         with open(self.val_annotations_path) as f:
             self.val_annotations = json.load(f)
 
-
-    
     def generate_labels_image(self, img_row, output_path, set):
-        
+
         file_name = os.path.splitext(img_row['file_name'])[0] + '.txt'
 
         if set == "train":
             annotations = self.train_annotations
-            output_path_label = os.path.join(output_path, "labels", "train", file_name)
+            output_path_label = os.path.join(
+                output_path, "labels", "train", file_name)
         elif set == "val":
             annotations = self.val_annotations
-            output_path_label = os.path.join(output_path, "labels", "val", file_name)
+            output_path_label = os.path.join(
+                output_path, "labels", "val", file_name)
 
         instances = annotations[annotations['image_id'] == img_row['id']]
 
         with open(output_path_label, "w") as file:
             for i, instance in instances.iterrows():
-                
-                instance_x = (instance["bbox"][0] + (instance["bbox"][2] / 2)) / img_row['width']
-                instance_y = (instance["bbox"][1] + (instance["bbox"][3] / 2)) / img_row['height']
+
+                instance_x = (
+                    instance["bbox"][0] + (instance["bbox"][2] / 2)) / img_row['width']
+                instance_y = (
+                    instance["bbox"][1] + (instance["bbox"][3] / 2)) / img_row['height']
                 instance_w = instance["bbox"][2] / img_row['width']
                 instance_h = instance["bbox"][3] / img_row['height']
 
                 file.write(
-                    str(instance['category_id']) + " " + 
-                    str(instance_x) + " " + 
-                    str(instance_y) + " " + 
-                    str(instance_w) + " " + 
+                    str(instance['category_id']) + " " +
+                    str(instance_x) + " " +
+                    str(instance_y) + " " +
+                    str(instance_w) + " " +
                     str(instance_h) + "\n"
                 )
 
         return
 
-
     def convert(self, output_path, name):
-
         """
         # Create output directory
         if os.path.exists(output_path):
@@ -75,7 +77,7 @@ class COCO2YOLO:
             shutil.rmtree(output_path, onerror=ignore_extended_attributes)
         """
 
-        #os.mkdir(output_path)
+        # os.mkdir(output_path)
         os.mkdir(os.path.join(output_path, "labels"))
         os.mkdir(os.path.join(output_path, "labels", "train"))
         os.mkdir(os.path.join(output_path, "labels", "val"))
@@ -109,17 +111,20 @@ class COCO2YOLO:
 
         tqdm.pandas()
 
-        # Generate labels of the train set
+        #  Generate labels of the train set
         print("Converting labels from the train set")
         images_train = pd.DataFrame(self.train_annotations['images'])
-        self.train_annotations = pd.DataFrame(self.train_annotations['annotations'])
-        images_train.progress_apply(lambda x: self.generate_labels_image(x, output_path=output_path, set="train"), axis=1)
+        self.train_annotations = pd.DataFrame(
+            self.train_annotations['annotations'])
+        images_train.progress_apply(lambda x: self.generate_labels_image(
+            x, output_path=output_path, set="train"), axis=1)
 
-        # Generate labels of the validation set
+        #  Generate labels of the validation set
         print("Converting labels from the validation set")
         images_val = pd.DataFrame(self.val_annotations['images'])
-        self.val_annotations = pd.DataFrame(self.val_annotations['annotations'])
-        images_val.progress_apply(lambda x: self.generate_labels_image(x, output_path=output_path, set="val"), axis=1)
+        self.val_annotations = pd.DataFrame(
+            self.val_annotations['annotations'])
+        images_val.progress_apply(lambda x: self.generate_labels_image(
+            x, output_path=output_path, set="val"), axis=1)
 
         return
-
