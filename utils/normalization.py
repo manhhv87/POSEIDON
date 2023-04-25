@@ -10,8 +10,8 @@ from utils.auxiliar import ignore_extended_attributes, NpEncoder
 class COCONormalization:
 
     def __init__(self):
-        # self.base_path = os.getenv('POSEIDON_DATASET_PATH')
         self.base_path = '/content/SeaDronesSee/data/'
+
         if self.base_path is None:
             raise EnvironmentError(
                 "Environment variable 'POSEIDON_DATASET_PATH' not found")
@@ -52,21 +52,7 @@ class COCONormalization:
         return
 
     def normalize(self):
-
-        # Create output directory
-        # if os.path.exists(output_path):
-        #     print("Removing previous dataset in the specified path")
-        #     shutil.rmtree(output_path, onerror=ignore_extended_attributes)
-
-        # print("Copying the original dataset")
-
-        # # Generate copy of all the images
-        # shutil.copytree(self.base_path,
-        #         os.path.join(output_path),
-        #         ignore=shutil.ignore_patterns('.*'))
-
-        # self.base_path = output_path
-
+        
         #  Get path from the images and the annotation files
         self.train_annotations_path = os.path.join(
             self.base_path, "annotations", "instances_train.json")
@@ -88,7 +74,5 @@ class COCONormalization:
 
         with open(self.train_annotations_path, 'w') as f:
             json.dump(self.train_annotations, f, cls=NpEncoder)
-
-        # os.environ['POSEIDON_DATASET_PATH'] = output_path
 
         return

@@ -5,12 +5,12 @@ from utils.coco2yolo import COCO2YOLO
 
 if __name__ == '__main__':
 
-    # normalizator = COCONormalization()
-    # normalizator.normalize()
+    normalizator = COCONormalization()
+    normalizator.normalize()
 
-    extractor = COCOInstanceExtractor()
-    extractor.dataset_stats()
-    extractor.extract()
+    # extractor = COCOInstanceExtractor()
+    # extractor.dataset_stats()
+    # extractor.extract()
 
     # generator = COCOInstanceGenerator()
     # generator.balance('/Users/pabloruizponce/Vainas/POSEIDON/poseidon/outputs')
