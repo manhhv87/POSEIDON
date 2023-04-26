@@ -7,7 +7,6 @@ from tqdm import tqdm
 from generation.instance_generator import InstanceGenerator
 import random
 import shutil
-from filecmp import dircmp
 import swifter
 from utils.auxiliar import ignore_extended_attributes, NpEncoder
 
@@ -251,9 +250,11 @@ class COCOInstanceGenerator(InstanceGenerator):
             #  Fancier
             print(f"Iteration {iteration}")
             tqdm.pandas()
+            
             # New instances generation
             self.original_images.progress_apply(lambda x: self.add_instances_image(
                 x, instances_path, iteration, max_tolerance), axis=1)
+            
             # Progress Bar not appearing I dunno why
             # images.swifter.progress_bar(True, bar_format='{l_bar}{bar}| elapsed: {elapsed}s').apply(lambda x: self.add_instances_image(x, instances_path, iteration), axis=1)
 

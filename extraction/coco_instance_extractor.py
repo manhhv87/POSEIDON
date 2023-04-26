@@ -63,8 +63,10 @@ class COCOInstanceExtractor(InstanceExtractor):
         #  Instances on the Validation Set
         print("Instances Validation Set")
         print("________________________")
+
         df = pd.DataFrame(self.val_annotations['annotations'])
         df_counts = df['category_id'].value_counts()
+
         for category in self.val_annotations['categories']:
             print(category['name'], ": ", sep="", end="")
             if category['id'] in df_counts.index:
@@ -106,6 +108,7 @@ class COCOInstanceExtractor(InstanceExtractor):
         h = int(h)
         instance = Image.fromarray(img[y:y+h, x:x+w])
         instance.save(output_path)
+
         return
 
     #  Extract all instances from an image
@@ -113,7 +116,7 @@ class COCOInstanceExtractor(InstanceExtractor):
     def extract_instances_image(self, annotations, img_row, output_path):
         output_path = os.path.join(output_path, str(img_row['id']))
         angle_camera = None
-        # print(img_row)
+
         if img_row["meta"] is not None and "gimbal_heading(degrees)" in img_row["meta"]:
             angle_camera = img_row["meta"]["gimbal_heading(degrees)"]
             bboxs = annotations[annotations['image_id'] == img_row['id']]
@@ -122,11 +125,12 @@ class COCOInstanceExtractor(InstanceExtractor):
             img = np.array(img)
             bboxs.apply(lambda x: self.extract_instance_image(
                 img, x, output_path, angle_camera), axis=1)
+
         return
 
     # Extract and save all the intances from all the images in the training set
 
-    def extract(self, output_path='./outputs'):
+    def extract(self, output_path='/content/SeaDronesSee/data/outputs'):
         # Create output directory
         if not os.path.exists(output_path):
             os.mkdir(output_path)
@@ -167,6 +171,7 @@ class COCOInstanceExtractor(InstanceExtractor):
             output_path = os.path.join(output_path, str(
                 img_row['id'])) + str(bg_window.name) + ".png"
             img.save(output_path)
+
         return
 
     #  Sliding Window (other approach?)
@@ -178,11 +183,13 @@ class COCOInstanceExtractor(InstanceExtractor):
         # Creation of all the posible windows in an image
         x = np.arange(h-background_size[1], step=stride[1])
         y = np.arange(w-background_size[0], step=stride[0])
+
         windows = np.array(np.meshgrid(y, x)).T.reshape(-1, 2)
         windows = np.hstack((windows, np.zeros((windows.shape[0], 1))))
         windows[:, 2] = background_size[0]
         windows = np.hstack((windows, np.zeros((windows.shape[0], 1))))
         windows[:, 3] = background_size[1]
+
         windows = pd.DataFrame(
             windows, columns=['x', 'y', 'w', 'h']).astype('int')
 
@@ -190,6 +197,7 @@ class COCOInstanceExtractor(InstanceExtractor):
         tqdm.pandas()
         windows.progress_apply(lambda x: self.check_background_collider(
             output_path, img_row, x, bboxs), axis=1)
+
         return
 
     def extract_background(self, output_path='./background', background_size=(1000, 1000), stride=(50, 50)):
@@ -209,14 +217,17 @@ class COCOInstanceExtractor(InstanceExtractor):
         # Extraction
         images.progress_apply(lambda x: self.extract_background_image(
             output_path, annotations, x, background_size, stride), axis=1)
+
         return
 
     def get_patch_bbox(self, instance, ax, cmap):
         category = instance['category_id']
         x, y, w, h = instance['bbox']
+
         bbox = patches.Rectangle(
             (x, y), w, h, linewidth=1, edgecolor=cmap(category), facecolor='none')
         ax.add_patch(bbox)
+
         return
 
     def visualize(self, img_set='train', img_id=None, cmap='tab10'):
@@ -240,9 +251,10 @@ class COCOInstanceExtractor(InstanceExtractor):
         print(bboxs)
 
         #  Plot Bounding Boxes on the Instances
-        fig, ax = plt.subplots()
+        _, ax = plt.subplots()
         cmap = plt.cm.get_cmap(cmap)
         bboxs.apply(lambda x: self.get_patch_bbox(x, ax, cmap), axis=1)
         plt.imshow(img)
         plt.show()
+
         return

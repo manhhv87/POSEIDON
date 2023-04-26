@@ -6,7 +6,7 @@ from utils.coco2yolo import COCO2YOLO
 if __name__ == '__main__':
 
     normalizator = COCONormalization()
-    normalizator.normalize()
+    normalizator.normalize("/content/SeaDronesSee/SDSNormalized")
 
     # extractor = COCOInstanceExtractor()
     # extractor.dataset_stats()
