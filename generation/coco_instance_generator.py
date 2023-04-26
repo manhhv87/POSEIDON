@@ -25,7 +25,7 @@ class COCOInstanceGenerator(InstanceGenerator):
             self.base_path, "annotations", "instances_train_augmented.json")
         self.images_path = os.path.join(self.base_path, "train/images")
         self.images_a_train_path = os.path.join(
-            self.base_path, "train_augmented", "images")
+            self.base_path, "train_augmented", "train/images")
 
         shutil.copyfile(self.train_annotations_path,
                         self.a_train_annotations_path)
@@ -240,6 +240,7 @@ class COCOInstanceGenerator(InstanceGenerator):
 
     def balance(self, instances_path, max_tolerance=0.03):
         self.dataset_stats()
+        
         #  Iterate until the dataset has been balanced
         iteration = 1
 

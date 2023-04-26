@@ -10,7 +10,7 @@ from utils.auxiliar import ignore_extended_attributes, NpEncoder
 class COCONormalization:
 
     def __init__(self):
-        self.base_path = '/content/SeaDronesSee/data'
+        self.base_path = os.getenv('POSEIDON_DATASET_PATH')
 
         if self.base_path is None:
             raise EnvironmentError(
@@ -67,7 +67,7 @@ class COCONormalization:
 
         self.base_path = output_path
 
-        #  Get path from the images and the annotation files
+        # Get path from the images and the annotation files
         self.train_annotations_path = os.path.join(
             self.base_path, "annotations", "instances_train.json")
         self.images_path = os.path.join(self.base_path, "train/images")
@@ -81,12 +81,14 @@ class COCONormalization:
 
         tqdm.pandas()
 
-        #  Generate labels of the train set
+        # Generate labels of the train set
         print("Normalizing images from the train set")
         images.progress_apply(lambda x: self.normalize_image(
             x, min_width=min_width), axis=1)
 
         with open(self.train_annotations_path, 'w') as f:
-            json.dump(self.train_annotations, f, cls=NpEncoder)
+            json.dump(self.train_annotations, f,  cls=NpEncoder)
+
+        os.environ['POSEIDON_DATASET_PATH'] = output_path
 
         return

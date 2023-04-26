@@ -6,7 +6,7 @@ import os
 class InstanceExtractor:
 
     def __init__(self):
-        self.base_path = '/content/SeaDronesSee/'
+        self.base_path = os.getenv('POSEIDON_DATASET_PATH')
 
         if self.base_path is None:
             raise EnvironmentError(
