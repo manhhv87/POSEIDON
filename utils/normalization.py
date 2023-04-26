@@ -1,16 +1,15 @@
 import os
 import json
-import shutil
 import pandas as pd
 from tqdm import tqdm
 from PIL import Image
-from utils.auxiliar import ignore_extended_attributes, NpEncoder
+from utils.auxiliar import NpEncoder
 
 
 class COCONormalization:
 
     def __init__(self):
-        self.base_path = '/content/SeaDronesSee/data/'
+        self.base_path = '/content/SeaDronesSee/'
 
         if self.base_path is None:
             raise EnvironmentError(
@@ -30,7 +29,7 @@ class COCONormalization:
         image.resize((int(img_row['width']), int(img_row['height'])))
         image.save(img_path)
 
-        for i, instance in instances.iterrows():
+        for _, instance in instances.iterrows():
             x, y, w, h = instance['bbox']
             center = (x + w / 2, y + h / 2)
             w = w * normalize_factor
