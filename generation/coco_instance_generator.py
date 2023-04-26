@@ -256,7 +256,7 @@ class COCOInstanceGenerator(InstanceGenerator):
             self.original_images.progress_apply(lambda x: self.add_instances_image(
                 x, instances_path, iteration, max_tolerance), axis=1)
             
-            # Progress Bar not appearing I dunno why
+            # Progress Bar not appearing I don't why
             # images.swifter.progress_bar(True, bar_format='{l_bar}{bar}| elapsed: {elapsed}s').apply(lambda x: self.add_instances_image(x, instances_path, iteration), axis=1)
 
             self.train_annotations['images'] = self.images.to_dict('records')

@@ -11,14 +11,14 @@ if __name__ == '__main__':
     os.environ['POSEIDON_DATASET_PATH'] = '/content/SeaDronesSee/data'
 
     normalizator = COCONormalization()
-    normalizator.normalize("/content/SeaDronesSee/SDSNormalized")
+    normalizator.normalize()
 
     # extractor = COCOInstanceExtractor()
     # extractor.dataset_stats()
-    # extractor.extract("/content/SeaDronesSee/ExtOuts")
+    # extractor.extract('/content/SeaDronesSee/outputs')
 
     # generator = COCOInstanceGenerator()
-    # generator.balance('/Users/pabloruizponce/Vainas/POSEIDON/poseidon/outputs')
+    # generator.balance('/content/SeaDronesSee/outputs')
 
     # conversor = COCO2YOLO()
     # conversor.convert("/Users/pabloruizponce/Vainas/SDSYOLO", "SDSYOLO")

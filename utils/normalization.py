@@ -1,10 +1,9 @@
 import os
 import json
-import shutil
 import pandas as pd
 from tqdm import tqdm
 from PIL import Image
-from utils.auxiliar import ignore_extended_attributes, NpEncoder
+from utils.auxiliar import NpEncoder
 
 
 class COCONormalization:
@@ -51,21 +50,7 @@ class COCONormalization:
 
         return
 
-    def normalize(self, output_path):
-
-        # Create output directory
-        if os.path.exists(output_path):
-            print("Removing previous dataset in the specified path")
-            shutil.rmtree(output_path, onerror=ignore_extended_attributes)
-
-        print("Copying the original dataset")
-
-        # Generate copy of all the images
-        shutil.copytree(self.base_path,
-                        os.path.join(output_path),
-                        ignore=shutil.ignore_patterns('.*'))
-
-        self.base_path = output_path
+    def normalize(self):
 
         # Get path from the images and the annotation files
         self.train_annotations_path = os.path.join(
@@ -88,7 +73,5 @@ class COCONormalization:
 
         with open(self.train_annotations_path, 'w') as f:
             json.dump(self.train_annotations, f,  cls=NpEncoder)
-
-        os.environ['POSEIDON_DATASET_PATH'] = output_path
 
         return

@@ -129,11 +129,11 @@ class COCOInstanceExtractor(InstanceExtractor):
 
     # Extract and save all the intances from all the images in the training set
 
-    def extract(self, output_path='./outputs'):
+    def extract(self, output_path='/content/SeaDronesSee/outputs'):
         # Create output directory
         if not os.path.exists(output_path):
             os.mkdir(output_path)
-            print("Output directory creted: ", output_path)
+            print("Output directory created: ", output_path)
 
         # Get annotations and images information
         annotations = pd.DataFrame(self.train_annotations['annotations'])
